@@ -133,12 +133,12 @@ module credit_silhouette(width,length,corner_size)
 module credit_box_full_height()
 {
 	inner_size = [credit_width,credit_length,height];
-	outer_size = [credit_width+2*credit_wall_thickness, credit_length+2*credit_wall_thickness, height];
+	outer_size = [credit_width+2*credit_wall_thickness, credit_length+credit_wall_thickness, height];
 
 	difference()
 	{
 		cube(outer_size);
-		translate([credit_wall_thickness-0.001,credit_wall_thickness,0])
+		translate([credit_wall_thickness-0.001,0,0])
 		{
 			linear_extrude(height=height+0.01)
 			{
@@ -154,17 +154,20 @@ module credit_box_padded(number_of_tiles, etch_text)
 	assert(padding_height >= etch_depth);
 	union()
 	{
-		credit_box_full_height();
-		translate([credit_wall_thickness-0.001, credit_wall_thickness-0.001, 0])
+		translate([0,credit_wall_thickness,0])
 		{
-			difference()
+			credit_box_full_height();
+			translate([credit_wall_thickness-0.001, 0, 0])
 			{
-				cube([credit_width,credit_length,padding_height]);
-				translate([credit_width/2+credit_wall_thickness, credit_length/2+credit_wall_thickness, padding_height-etch_depth])
+				difference()
 				{
-					linear_extrude(height=etch_depth+0.01)
+					cube([credit_width,credit_length,padding_height]);
+					translate([credit_width/2+credit_wall_thickness, credit_length/2+credit_wall_thickness, padding_height-etch_depth])
 					{
-						rotate([0,0,90]) text(text=etch_text, size=credit_font_size, font=font, halign="center", valign="center");
+						linear_extrude(height=etch_depth+0.01)
+						{
+							rotate([0,0,90]) text(text=etch_text, size=credit_font_size, font=font, halign="center", valign="center");
+						}
 					}
 				}
 			}
