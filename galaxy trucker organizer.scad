@@ -5,7 +5,7 @@ module __Customizer_Limit__ () {}
 
 // snap box settings
 render_part = "none";
-length = 177;
+length = 176;
 width = 106;
 height = 38;
 lid_wall_height = 13;
@@ -22,29 +22,39 @@ gap = 0.1;
 inner_half_shell_ratio = 0.6;
 
 // organizer settings
-render_part_gt = "all";
+render_part_gt = "box";
+lower_tray_net_height = 22;
+upper_tray_bottom_thickness = 2;
+upper_tray_margin = 0.5;
+upper_tray_net_height = height - lower_tray_net_height - upper_tray_bottom_thickness - upper_tray_margin;
 etch_depth = 0.6;
 font = "Arial";
+wall_thickness = 1;
 credit_corner_size = 3.5;
 credit_width = 21;
 credit_length = 44;
 credit_height = 1.7;
 credit_upper_margin = 1.5;
-credit_wall_thickness = 1;
+credit_wall_thickness = wall_thickness;
 credit_hole_width = 14;
 credit_numbers = [13, 21, 12, 18, 4];
 credit_names = ["1₵", "2₵", "5₵", "10₵", "50₵"];
 credit_font_size = 14;
+humans_box_y_size = 55;
+hourglass_box_y_size = 23;
+dice_box_x_size = 24;
+aliens_box_x_size = 40;
+cup_r = 120;
 
 $fs = 0.2;
 $fa = 3;
 
 
-if (render_part_gt=="box1")
+if (render_part_gt=="box")
 {
 	box1();
 }
-else if (render_part_gt=="box2")
+else if (render_part_gt=="tray")
 {
 	box2();
 }
@@ -92,7 +102,60 @@ module box1()
 				}
 			}
 				
+			// walls
+			
+			translate([shell_thickness,shell_thickness,shell_thickness])
+			{
+				end_of_credits_wall_y = length-len(credit_numbers)*(credit_width+credit_wall_thickness);
+				dice_ships_aliens_size_y  = end_of_credits_wall_y - hourglass_box_y_size - wall_thickness;
+				cubes_size_y = length - end_of_credits_wall_y - humans_box_y_size - wall_thickness * 2;
 				
+				// along y
+				translate([aliens_box_x_size, hourglass_box_y_size+wall_thickness - 0.001, 0])
+					cube([wall_thickness, dice_ships_aliens_size_y +0.002, lower_tray_net_height]);
+				
+				translate([width-dice_box_x_size-wall_thickness, hourglass_box_y_size + wall_thickness-0.001, 0])
+					cube([wall_thickness, dice_ships_aliens_size_y + 0.002, lower_tray_net_height]);
+				
+				// along x
+				translate([credit_length+wall_thickness-0.001,length-humans_box_y_size-wall_thickness,0])
+					cube([width-credit_length-wall_thickness+0.002,wall_thickness,lower_tray_net_height]);
+				
+				translate([credit_length+wall_thickness-0.001, end_of_credits_wall_y,0])
+					cube([width-credit_length-wall_thickness+0.002,wall_thickness,lower_tray_net_height]);
+				
+				translate([-0.001, hourglass_box_y_size,0])
+					cube([width+0.002,wall_thickness,lower_tray_net_height]);
+				
+				// cups
+				{
+					// humans
+					translate([credit_length + wall_thickness, length - humans_box_y_size])
+						cup([width-credit_length-wall_thickness, humans_box_y_size], cup_r);
+					
+					// cubes
+					translate([credit_length + wall_thickness, end_of_credits_wall_y + wall_thickness])
+						cup([width-credit_length-wall_thickness, cubes_size_y], cup_r);
+					
+					// aliens
+					translate([0, hourglass_box_y_size + wall_thickness])
+						cup([aliens_box_x_size, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], cup_r);
+					
+					// ships
+					translate([aliens_box_x_size+wall_thickness, hourglass_box_y_size + wall_thickness])
+						cup([width-aliens_box_x_size-dice_box_x_size-wall_thickness, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], cup_r);
+					
+					// hourglass (special, cylindrical)
+					difference()
+					{
+						translate([-0.001,-0.001,0])
+							cube([width,hourglass_box_y_size+0.002,hourglass_box_y_size/2]);
+						translate([0,hourglass_box_y_size/2,hourglass_box_y_size/2])
+							rotate([0,90,0])
+								cylinder(r=hourglass_box_y_size/2,h=width+0.001);
+					}
+				}
+			}
 		}
 		
 		// subtractions
@@ -189,5 +252,16 @@ module credit_box_hole(number_of_tiles)
 						cylinder(r=shell_thickness, h=credit_hole_width);
 			}
 		}
+	}
+}
+
+module cup(size,r)
+{
+	difference()
+	{
+		translate([-0.001,-0.001,0])
+			cube([size[0]+0.002,size[1]+0.002,r]);
+		translate([size[0]/2,size[1]/2,r])
+			sphere(r=r);
 	}
 }
