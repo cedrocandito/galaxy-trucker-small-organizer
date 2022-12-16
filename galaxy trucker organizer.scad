@@ -8,7 +8,7 @@ render_part = "none";
 length = 177;
 width = 106;
 height = 38;
-lid_wall_height = 10;
+lid_wall_height = 13;
 shell_thickness = 2.5;
 corner_radius = 1;
 snappy_flaps = false;
@@ -181,9 +181,16 @@ module credit_box_hole(number_of_tiles)
 	translate([(credit_width-credit_hole_width)/2+credit_wall_thickness, -0.001, padding_height])
 	{
 		cube([credit_hole_width, shell_thickness+credit_corner_size, height-padding_height+0.001]);
-		
 		{
-				rotate([0,90,0]) cylinder(r=shell_thickness, h=credit_hole_width);
+			difference()
+			{
+				translate([0,0,-shell_thickness])
+					cube([credit_hole_width,shell_thickness,shell_thickness+0.001]);
+				
+				translate([0,shell_thickness,-shell_thickness])
+					rotate([0,90,0])
+						cylinder(r=shell_thickness, h=credit_hole_width);
+			}
 		}
 	}
 }
