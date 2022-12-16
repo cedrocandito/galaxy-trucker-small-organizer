@@ -81,7 +81,7 @@ module box1()
 			// additions
 			
 			// credit boxes
-			translate([shell_thickness-credit_wall_thickness, length + shell_thickness + credit_wall_thickness, shell_thickness]) rotate([0,0,-90])
+			translate([shell_thickness, length + shell_thickness, shell_thickness]) rotate([0,0,-90])
 			{
 				for (i=[0:len(credit_numbers)-1])
 				{
@@ -98,7 +98,7 @@ module box1()
 		// subtractions
 		
 		// crddit boxes holes
-		translate([0, length + shell_thickness + credit_wall_thickness, shell_thickness]) rotate([0,0,-90])
+		translate([shell_thickness, length + shell_thickness, shell_thickness]) rotate([0,0,-90])
 			{
 				for (i=[0:len(credit_numbers)-1])
 				{
@@ -133,12 +133,12 @@ module credit_silhouette(width,length,corner_size)
 module credit_box_full_height()
 {
 	inner_size = [credit_width,credit_length,height];
-	outer_size = [credit_width+2*credit_wall_thickness, credit_length+credit_wall_thickness, height];
+	outer_size = [credit_width+credit_wall_thickness, credit_length+credit_wall_thickness, height];
 
 	difference()
 	{
 		cube(outer_size);
-		translate([credit_wall_thickness-0.001,0,0])
+		translate([-0.001,0,0])
 		{
 			linear_extrude(height=height+0.01)
 			{
@@ -154,20 +154,17 @@ module credit_box_padded(number_of_tiles, etch_text)
 	assert(padding_height >= etch_depth);
 	union()
 	{
-		translate([0,credit_wall_thickness,0])
+		credit_box_full_height();
+		translate([-0.001, 0, 0])
 		{
-			credit_box_full_height();
-			translate([credit_wall_thickness-0.001, 0, 0])
+			difference()
 			{
-				difference()
+				cube([credit_width,credit_length,padding_height]);
+				translate([credit_width/2, credit_length/2, padding_height-etch_depth])
 				{
-					cube([credit_width,credit_length,padding_height]);
-					translate([credit_width/2+credit_wall_thickness, credit_length/2+credit_wall_thickness, padding_height-etch_depth])
+					linear_extrude(height=etch_depth+0.01)
 					{
-						linear_extrude(height=etch_depth+0.01)
-						{
-							rotate([0,0,90]) text(text=etch_text, size=credit_font_size, font=font, halign="center", valign="center");
-						}
+						rotate([0,0,90]) text(text=etch_text, size=credit_font_size, font=font, halign="center", valign="center");
 					}
 				}
 			}
@@ -178,7 +175,7 @@ module credit_box_padded(number_of_tiles, etch_text)
 module credit_box_hole(number_of_tiles)
 {
 	padding_height = height - credit_upper_margin - credit_height*number_of_tiles;
-	translate([(credit_width-credit_hole_width)/2+credit_wall_thickness, -0.001, padding_height])
+	translate([(credit_width-credit_hole_width)/2, -shell_thickness-0.001, padding_height])
 	{
 		cube([credit_hole_width, shell_thickness+credit_corner_size, height-padding_height+0.001]);
 		{
