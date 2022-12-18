@@ -133,19 +133,23 @@ module box1()
 				{
 					// humans
 					translate([credit_length + wall_thickness, length - humans_box_y_size])
-						cup([width-credit_length-wall_thickness, humans_box_y_size], cup_r);
+						cup([width-credit_length-wall_thickness, humans_box_y_size], cup_r, svg="img/human.svg", img_z_rotation=-90, img_scale=0.3);
 					
 					// cubes
 					translate([credit_length + wall_thickness, end_of_credits_wall_y + wall_thickness])
-						cup([width-credit_length-wall_thickness, cubes_size_y], cup_r);
+						cup([width-credit_length-wall_thickness, cubes_size_y], cup_r, svg="img/cube.svg", img_z_rotation=-90, img_scale=0.3);
 					
 					// aliens
 					translate([0, hourglass_box_y_size + wall_thickness])
-						cup([aliens_box_x_size, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], cup_r);
+						cup([aliens_box_x_size, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], cup_r, svg="img/alien.svg", img_z_rotation=-90, img_scale=0.3);
 					
 					// ships
 					translate([aliens_box_x_size+wall_thickness, hourglass_box_y_size + wall_thickness])
-						cup([width-aliens_box_x_size-dice_box_x_size-wall_thickness, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], cup_r);
+						cup([width-aliens_box_x_size-dice_box_x_size-wall_thickness, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], cup_r, svg="img/ship.svg", img_z_rotation=-90, img_scale=0.7);
+					
+					// dice (special, just an etched flat floor)
+					translate([width-dice_box_x_size, hourglass_box_y_size + wall_thickness])
+						etched_floor([dice_box_x_size, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], cup_r, svg="img/dice.svg", img_z_rotation=-90, img_scale=0.5);
 					
 					// hourglass (special, cylindrical)
 					difference()
@@ -288,14 +292,62 @@ module credit_box_hole(number_of_tiles)
 	}
 }
 
-module cup(size,r)
+module cup(size, r, text=undef, png=undef, svg=undef, img_z_rotation=0, img_scale=1)
 {
 	difference()
 	{
 		translate([-0.001,-0.001,0])
 			cube([size[0]+0.002,size[1]+0.002,r]);
-		translate([size[0]/2,size[1]/2,r])
-			sphere(r=r);
+		translate([size[0]/2,size[1]/2,0])
+		{
+			union()
+			{
+				// inner sphere (floor)
+				translate([0,0,r + etch_depth]) sphere(r=r);
+				
+				// spherical etch
+				intersection()
+				{
+					translate([0,0,r])
+						sphere(r=r);
+					
+					etching(h=r, text=text, svg=svg, img_z_rotation=img_z_rotation, img_scale=img_scale);
+				}
+			}
+		}
+	}
+}
+
+module etched_floor(size, text=undef, png=undef, svg=undef, img_z_rotation=0, img_scale=1)
+{
+	translate([-0.001,-0.001,0])
+	{
+		difference()
+		{
+			cube([size[0]+0.002,size[1]+0.002,etch_depth]);
+			
+			translate([size[0]/2,size[1]/2,0])
+			{
+				etching(h=etch_depth+0.001, text=text, svg=svg, img_z_rotation=img_z_rotation, img_scale=img_scale);
+			}
+		}
+	}
+}
+
+module etching(h, text=undef, svg=undef, img_z_rotation=0, img_scale=1)
+{
+	if (svg!=undef)
+	{
+		rotate([0,0,img_z_rotation])
+		{
+			scale([img_scale,img_scale,1])
+			{
+				linear_extrude(height=h)
+				{
+					import(file=svg, center=true);
+				}
+			}
+		}
 	}
 }
 
@@ -309,5 +361,4 @@ module tray_support()
 			[-0.001,tray_support_size]
 		]);
 	}
-	
 }
