@@ -1,6 +1,7 @@
 include <../snap box/snap box.scad>
 
-render_part_gt = "all";
+// Which part(s) to render.
+render_part_gt = "all";	// [box,tray,lid,all]
 
 // prevent customizer from showing the variables
 module __Customizer_Limit__ () {}
