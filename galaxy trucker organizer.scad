@@ -22,11 +22,13 @@ gap = 0.1;
 inner_half_shell_ratio = 0.6;
 
 // organizer settings
-render_part_gt = "box";
+render_part_gt = "all";
 lower_tray_net_height = 22;
 upper_tray_bottom_thickness = 2;
-upper_tray_margin = 0.5;
-upper_tray_net_height = height - lower_tray_net_height - upper_tray_bottom_thickness - upper_tray_margin;
+upper_tray_top_margin = 0.5;
+upper_tray_net_height = height - lower_tray_net_height - upper_tray_bottom_thickness - upper_tray_top_margin;
+upper_tray_side_margin = 0.7;
+upper_tray_shell_thickness = 1.2;
 etch_depth = 0.6;
 font = "Arial";
 wall_thickness = 1;
@@ -47,19 +49,20 @@ aliens_box_x_size = 40;
 cup_r = 120;
 tray_support_size = 4;
 
+display_ghost_tray = false;
+
 $fs = 0.2;
 $fa = 3;
 
 
 if (render_part_gt=="box")
 {
-	box1();
+	lower_box();
 }
 else if (render_part_gt=="tray")
 {
-	box2();
+	upper_tray();
 }
-
 else if (render_part_gt=="lid")
 {
 	lid();
@@ -68,10 +71,10 @@ else if (render_part_gt=="all")
 {
 	union()
 	{
-		box1();
+		lower_box();
 		translate([box_outer_size[0] + box_and_lid_distance, 0, 0])
 		{
-			box2();
+			upper_tray();
 			translate([box_outer_size[0] + box_and_lid_distance, 0, 0])
 				lid();
 		}
@@ -82,7 +85,7 @@ else
 	assert(false,"No valid part selected");
 }
 
-module box1()
+module lower_box()
 {
 	difference()
 	{
@@ -149,7 +152,7 @@ module box1()
 					
 					// dice (special, just an etched flat floor)
 					translate([width-dice_box_x_size, hourglass_box_y_size + wall_thickness])
-						etched_floor([dice_box_x_size, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], cup_r, svg="img/dice.svg", img_z_rotation=-90, img_scale=0.5);
+						etched_floor([dice_box_x_size, end_of_credits_wall_y-hourglass_box_y_size-wall_thickness], svg="img/dice.svg", img_z_rotation=-90, img_scale=0.5);
 					
 					// hourglass (special, cylindrical)
 					difference()
@@ -199,21 +202,98 @@ module box1()
 		
 		// crddit boxes holes
 		translate([shell_thickness, length + shell_thickness, shell_thickness]) rotate([0,0,-90])
+		{
+			for (i=[0:len(credit_numbers)-1])
 			{
-				for (i=[0:len(credit_numbers)-1])
+				translate([i*(credit_width+credit_wall_thickness),0,0])
 				{
-					translate([i*(credit_width+credit_wall_thickness),0,0])
-					{
-						credit_box_hole(credit_numbers[i]);
-					}
+					credit_box_hole(credit_numbers[i]);
 				}
 			}
+		}
+	}
+	
+	// transparent upper tray
+	if (display_ghost_tray)
+	{
+		translate([shell_thickness + upper_tray_side_margin, shell_thickness + upper_tray_side_margin, shell_thickness + lower_tray_net_height])
+		{
+			color("#ff80ff30")
+				%upper_tray();
+		}
 	}
 }
 
-module box2()
+module upper_tray()
 {
-	box();
+	upper_tray_outer_width = width - upper_tray_side_margin * 2;
+	upper_tray_inner_width = upper_tray_outer_width - 2 * upper_tray_shell_thickness;
+	upper_tray_outer_small_width = width - credit_length - wall_thickness - 2 * upper_tray_side_margin;
+	upper_tray_inner_small_width = upper_tray_outer_small_width - 2 * upper_tray_shell_thickness;
+	upper_tray_outer_length = length - upper_tray_side_margin * 2 - humans_box_y_size - wall_thickness;
+	upper_tray_inner_length = upper_tray_outer_length - 2 * upper_tray_shell_thickness;
+	upper_tray_outer_south_length = length - len(credit_numbers)*(credit_width+credit_wall_thickness) - upper_tray_side_margin * 2;
+	upper_tray_inner_south_length = upper_tray_outer_south_length - 2 * upper_tray_shell_thickness;
+	
+	small_part_x_offset = upper_tray_outer_width - upper_tray_outer_small_width;
+	start_tiles_x_size = upper_tray_inner_width - upper_tray_inner_small_width - wall_thickness;
+	
+	start_tiles_position = [0, 0, 0];
+	start_tiles_size = [start_tiles_x_size, upper_tray_inner_south_length, upper_tray_net_height+0.001];
+	
+	titles_position = [start_tiles_x_size + wall_thickness, 0, 0];
+	titles_size = [upper_tray_inner_small_width, upper_tray_inner_south_length, upper_tray_net_height+0.001];
+	
+	batteries_position = [titles_position[0], titles_size[1]+wall_thickness,0];
+	batteries_size = [titles_size[0], titles_size[1], upper_tray_net_height+0.001];
+		
+	difference()
+	{
+		union()
+		{
+			cube([upper_tray_outer_width, upper_tray_outer_south_length, upper_tray_bottom_thickness + upper_tray_net_height]);
+			translate([small_part_x_offset,upper_tray_outer_south_length-0.001,0])
+			{
+				cube([upper_tray_outer_small_width, upper_tray_outer_length - upper_tray_outer_south_length, upper_tray_bottom_thickness+upper_tray_net_height]);
+			}
+		}
+
+		translate([upper_tray_shell_thickness, upper_tray_shell_thickness, upper_tray_bottom_thickness])
+		{
+			cube(start_tiles_size);
+			
+			translate(titles_position)
+			{
+				cube(titles_size);
+			}
+			
+			translate(batteries_position)
+			{
+				cube(batteries_size);
+			}
+		}
+	}
+	
+	// floor etchings & cups
+	translate([upper_tray_shell_thickness, upper_tray_shell_thickness, upper_tray_bottom_thickness])
+	{
+		// start tiles
+		translate(start_tiles_position)
+		{
+			etched_floor(start_tiles_size, svg="img/start_tile.svg", img_z_rotation=-90, img_scale=0.2);
+		}
+		
+		// titles
+		translate(titles_position)
+		{
+			etched_floor(titles_size, svg="img/title_edge.svg", img_z_rotation=-90, img_scale=0.6);
+		}
+		
+		// batteries
+		translate(batteries_position)
+			cup(batteries_size, cup_r*1.5, svg="img/battery.svg", img_z_rotation=-90, img_scale=1.3);
+	}
+		
 }
 
 module credit_silhouette(width,length,corner_size)
