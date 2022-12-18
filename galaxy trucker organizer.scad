@@ -1,5 +1,7 @@
 include <../snap box/snap box.scad>
 
+render_part_gt = "all";
+
 // prevent customizer from showing the variables
 module __Customizer_Limit__ () {}
 
@@ -22,7 +24,6 @@ gap = 0.1;
 inner_half_shell_ratio = 0.6;
 
 // organizer settings
-render_part_gt = "all";
 lower_tray_net_height = 22;
 upper_tray_bottom_thickness = 2;
 upper_tray_top_margin = 0.5;
