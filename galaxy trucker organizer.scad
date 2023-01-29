@@ -282,7 +282,7 @@ module upper_tray()
 		// start tiles
 		translate(start_tiles_position)
 		{
-			etched_floor(start_tiles_size, svg="img/start_tile.svg", img_z_rotation=-90, img_scale=0.2);
+			etched_floor(start_tiles_size, svg="img/start_tile.svg", img_z_rotation=-90, img_scale=0.22);
 		}
 		
 		// titles
