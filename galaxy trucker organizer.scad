@@ -2,6 +2,8 @@ include <../snap box/snap box.scad>
 
 // Which part(s) to render.
 render_part_gt = "all";	// [box,tray,lid,all]
+// If true create four compartments for the resource cubes
+cubes_compartments = false;
 
 // prevent customizer from showing the variables
 module __Customizer_Limit__ () {}
@@ -129,6 +131,18 @@ module lower_box()
 					
 					translate([credit_length+wall_thickness-0.001, end_of_credits_wall_y,0])
 						cube([width-credit_length-wall_thickness+0.002,wall_thickness,lower_tray_net_height]);
+					
+					if (cubes_compartments)
+					{
+						cubes_size_x = width-credit_length-wall_thickness;
+						translate([credit_length+wall_thickness-0.001, end_of_credits_wall_y+wall_thickness-0.001,0])
+						{
+							translate([0,cubes_size_y/2,0])
+								cube([cubes_size_x+0.002,wall_thickness,lower_tray_net_height]);
+							translate([cubes_size_x/2,0,0])
+								cube([wall_thickness,cubes_size_y+0.002,lower_tray_net_height]);
+						}
+					}
 					
 					translate([-0.001, hourglass_box_y_size,0])
 						cube([width+0.002,wall_thickness,lower_tray_net_height]);

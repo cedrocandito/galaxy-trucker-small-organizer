@@ -2,7 +2,7 @@ This is my own [Galaxy Trucker (2021 edition)](https://czechgames.com/en/galaxy-
 
 I wanted an organizer for tokens, dice and hourglass but *not* for tiles and cards (I prefer to keep tiles in a simple bag and cards in their own box).
 
-My goal were to make it:
+My goals were to make it:
 
 - Light (=cheaper and faster to print).
 - Half the size of the box (so the other half can be used for the tiles bag and the cards box).
